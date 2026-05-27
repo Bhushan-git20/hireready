@@ -1,73 +1,82 @@
-# Welcome to your Lovable project
+# Placement Prospect AI 🎓📈
 
-## Project info
+An intelligent, AI-powered platform designed to revolutionize the way students prepare for their careers, while giving universities and recruiters deep, predictive insights into candidate readiness and market demands.
 
-**URL**: https://lovable.dev/projects/ebb36864-8b58-4652-92d9-76e72145e461
+---
 
-## How can I edit this code?
+## 🚀 Vision & Key Highlights
 
-There are several ways of editing your application.
+- **Predictive Job Fit Scoring**: Uses AI to analyze a student's profile and predict their success probability for specific roles.
+- **Real-Time Market Intelligence**: Leverages Gemini AI to scan and predict current and future industry demands, helping students stay ahead of the curve.
+- **Smart Resume Parsing**: Automatically extracts skills, experience, and educational background from PDF resume uploads using advanced AI Named Entity Recognition (NER).
+- **Personalized AI Career Coach**: Features an interactive, streaming AI chatbot that provides tailored career guidance, interview tips, and pathway recommendations.
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/ebb36864-8b58-4652-92d9-76e72145e461) and start prompting.
+## ✨ Comprehensive Feature Suite
 
-Changes made via Lovable will be committed automatically to this repo.
+### 📊 Placement Readiness Tracking
+- Multi-dimensional scoring matrix evaluating academics, technical skills, and soft skills.
+- Collaborative career recommendations based on historical peer success data.
 
-**Use your preferred IDE**
+### 🧠 Intelligence Layer
+- **Gemini 1.5 Flash**: Native integration for lightning-fast inference on job fit analysis and market trend predictions.
+- **Supabase Edge Functions**: Serverless runtime executing the AI logic securely via Deno.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 💻 Modern Frontend Experience
+- Built with React 18 and Vite for exceptional performance.
+- Styled using Tailwind CSS and shadcn/ui for a highly polished, accessible user interface.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 🛠️ Technology Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+| Layer | Technology |
+|---|---|
+| **Frontend Framework** | React + TypeScript + Vite |
+| **UI Components** | shadcn/ui + Tailwind CSS |
+| **Backend & Database** | Supabase (PostgreSQL, Auth, Storage) |
+| **Serverless Compute** | Supabase Edge Functions (Deno) |
+| **AI Integration** | Google Gemini 1.5 Flash |
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🚀 Getting Started
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### Prerequisites
+- Node.js 18+
+- Supabase CLI installed
+- Google Gemini API Key
+
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/Bhushan-git20/placement-prospect-ai.git
+cd placement-prospect-ai
 ```
 
-**Edit a file directly in GitHub**
+### 2️⃣ Install Dependencies
+```bash
+npm install
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 3️⃣ Configure Supabase & AI
+Set up your Gemini API key in the Supabase secrets manager so the Edge Functions can access it securely:
+```bash
+supabase secrets set GEMINI_API_KEY=your_actual_key_here
+```
 
-**Use GitHub Codespaces**
+Deploy the serverless Edge Functions:
+```bash
+supabase functions deploy
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 4️⃣ Start Local Development
+```bash
+npm run dev
+```
+Open your browser to `http://localhost:8080`.
 
-## What technologies are used for this project?
+---
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/ebb36864-8b58-4652-92d9-76e72145e461) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 📜 License
+Educational and personal use. © 2026 Bhushan Damisetti.
