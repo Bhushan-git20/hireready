@@ -1,67 +1,159 @@
-import React from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { supabase } from "./lib/supabase";
 import { AppLayout } from "./components/layout/AppLayout";
-import { RealtimeNotificationProvider } from "./components/RealtimeNotificationProvider";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import Users from "./pages/Users";
-import Students from "./pages/Students";
-import Jobs from "./pages/Jobs";
-import Skills from "./pages/Skills";
-import Assessments from "./pages/Assessments";
-import CareerCoach from "./pages/CareerCoach";
-import Candidates from "./pages/Candidates";
-import DataManagement from "./pages/DataManagement";
-import NotFound from "./pages/NotFound";
-import MyAssessments from "./pages/MyAssessments";
-import AdvancedAnalytics from "./pages/AdvancedAnalytics";
-import StudentProfile from "./pages/StudentProfile";
-import JobEvaluation from "./pages/JobEvaluation";
-import ResumeTailor from "./pages/ResumeTailor";
-import InterviewPrep from "./pages/InterviewPrep";
-import RejectionAnalysis from "./pages/RejectionAnalysis";
+import { Auth } from "./pages/Auth";
+import { Profile } from "./pages/Profile";
+import { Analyse } from "./pages/Analyse";
+import { Interview } from "./pages/Interview";
+import { Tracker } from "./pages/Tracker";
+import { Rejections } from "./pages/Rejections";
+import { Loader2 } from "lucide-react";
 
-const queryClient = new QueryClient();
+export default function App() {
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [profileComplete, setProfileComplete] = useState(false);
+  const [profilePercentage, setProfilePercentage] = useState(0);
+  const location = useLocation();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <RealtimeNotificationProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/students" element={<Students />} />
-              <Route path="/jobs" element={<Jobs />} />
-              <Route path="/skills" element={<Skills />} />
-              <Route path="/assessments" element={<Assessments />} />
-              <Route path="/career-coach" element={<CareerCoach />} />
-              <Route path="/candidates" element={<Candidates />} />
-              <Route path="/data" element={<DataManagement />} />
-              <Route path="/my-assessments" element={<MyAssessments />} />
-              <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
-              <Route path="/my-profile" element={<StudentProfile />} />
-              <Route path="/job-evaluation" element={<JobEvaluation />} />
-              <Route path="/resume-tailor" element={<ResumeTailor />} />
-              <Route path="/interview-prep" element={<InterviewPrep />} />
-              <Route path="/rejection-analysis" element={<RejectionAnalysis />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </RealtimeNotificationProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) checkProfileStatus(session.user.id);
+      setLoading(false);
+    });
 
-export default App;
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        checkProfileStatus(session.user.id);
+      } else {
+        setProfileComplete(false);
+        setProfilePercentage(0);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const checkProfileStatus = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      if (error && error.code !== "PGRST116") {
+        console.error("Error loading profile status:", error);
+        return;
+      }
+
+      if (data) {
+        let filledFields = 0;
+        const totalFields = 9; // full_name, skills, experience_text, projects_text, resume_text, target_roles, cgpa, college, graduation_year
+
+        if (data.full_name) filledFields++;
+        if (data.skills && data.skills.length > 0) filledFields++;
+        if (data.experience_text) filledFields++;
+        if (data.projects_text) filledFields++;
+        if (data.resume_text) filledFields++;
+        if (data.target_roles && data.target_roles.length > 0) filledFields++;
+        if (data.cgpa) filledFields++;
+        if (data.college) filledFields++;
+        if (data.graduation_year) filledFields++;
+
+        const percentage = Math.round((filledFields / totalFields) * 100);
+        setProfilePercentage(percentage);
+        setProfileComplete(percentage === 100);
+      } else {
+        setProfilePercentage(0);
+        setProfileComplete(false);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-[#0A0A0F] text-[#00FF88]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Protected Route Wrapper
+  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    if (!session) {
+      return <Navigate to="/auth" state={{ from: location }} replace />;
+    }
+    return (
+      <AppLayout profilePercentage={profilePercentage} profileComplete={profileComplete}>
+        {children}
+      </AppLayout>
+    );
+  };
+
+  return (
+    <Routes>
+      <Route
+        path="/auth"
+        element={session ? <Navigate to="/analyse" replace /> : <Auth />}
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile onProfileUpdate={() => checkProfileStatus(session.user.id)} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/analyse"
+        element={
+          <ProtectedRoute>
+            <Analyse />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/interview"
+        element={
+          <ProtectedRoute>
+            <Interview />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/tracker"
+        element={
+          <ProtectedRoute>
+            <Tracker />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/rejections"
+        element={
+          <ProtectedRoute>
+            <Rejections />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Default Routes */}
+      <Route path="/" element={<Navigate to={session ? "/analyse" : "/auth"} replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}

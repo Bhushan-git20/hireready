@@ -1,83 +1,200 @@
-import { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "./AppSidebar";
-import { Loader2 } from "lucide-react";
-export function AppLayout() {
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState(null);
-  useEffect(() => {
-    // Check initial session
-    const checkAuth = async () => {
-      try {
-        const {
-          data: {
-            session
-          }
-        } = await supabase.auth.getSession();
-        if (session?.user) {
-          setUser(session.user);
-        } else {
-          navigate('/auth');
-          return;
-        }
-      } catch (error) {
-        console.error('Error checking auth:', error);
-        navigate('/auth');
-        return;
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    checkAuth();
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { supabase } from "../../lib/supabase";
+import { 
+  Terminal, 
+  Sparkles, 
+  HelpCircle, 
+  ClipboardList, 
+  TrendingDown, 
+  User, 
+  LogOut, 
+  ChevronLeft, 
+  ChevronRight,
+  ShieldCheck,
+  CheckCircle2,
+  AlertCircle
+} from "lucide-react";
+import { cn } from "../../lib/utils";
+import { Progress } from "../ui/progress";
+import { Button } from "../ui/button";
 
-    // Listen for auth changes
-    const {
-      data: {
-        subscription
-      }
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        setUser(null);
-        navigate('/auth');
-      } else if (session?.user) {
-        setUser(session.user);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">Loading PlacePredict...</p>
+interface AppLayoutProps {
+  children: React.ReactNode;
+  profilePercentage: number;
+  profileComplete: boolean;
+}
+
+export function AppLayout({ children, profilePercentage, profileComplete }: AppLayoutProps) {
+  const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
+
+  const navItems = [
+    {
+      label: "Analyse JD",
+      path: "/analyse",
+      icon: Terminal,
+      primary: true,
+    },
+    {
+      label: "Interview Prep",
+      path: "/interview",
+      icon: HelpCircle,
+    },
+    {
+      label: "Application Tracker",
+      path: "/tracker",
+      icon: ClipboardList,
+    },
+    {
+      label: "Rejection Analyser",
+      path: "/rejections",
+      icon: TrendingDown,
+    },
+    {
+      label: "Profile",
+      path: "/profile",
+      icon: User,
+    },
+  ];
+
+  return (
+    <div className="flex min-h-screen bg-[#0A0A0F] text-foreground">
+      {/* Sidebar Navigation */}
+      <aside
+        className={cn(
+          "relative flex flex-col border-r border-[#1F1F2E] bg-[#0E0E16] transition-all duration-300 z-30",
+          collapsed ? "w-16" : "w-64"
+        )}
+      >
+        {/* Toggle Collapse Button */}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute -right-3 top-8 flex h-6 w-6 items-center justify-center border border-[#1F1F2E] bg-[#0A0A0F] text-[#00FF88] hover:bg-[#151522] focus:outline-none"
+        >
+          {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+        </button>
+
+        {/* Branding Logo Area */}
+        <div className="flex h-20 items-center px-4 border-b border-[#1F1F2E]">
+          <Link to="/analyse" className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center bg-[#00FF88] text-[#0A0A0F] shadow-[0_0_10px_rgba(0,255,136,0.3)]">
+              <Sparkles size={16} />
+            </div>
+            {!collapsed && (
+              <span className="font-semibold tracking-wider text-xl text-[#00FF88] glow-text-green" style={{ fontFamily: 'Clash Display' }}>
+                HIRE<span className="text-white">READY</span>
+              </span>
+            )}
+          </Link>
         </div>
-      </div>;
-  }
-  if (!user) {
-    return null;
-  }
-  return <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full">
-        <AppSidebar />
-        <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <header className="h-14 glass-card border-b border-sidebar-border flex items-center px-4 sticky top-0 z-10 bg-gradient-to-r from-background via-glass-primary/5 to-background">
-            <div className="flex items-center">
-              <SidebarTrigger className="hover:bg-sidebar-accent/50 transition-smooth" />
-              <div className="ml-4">
-                <h2 className="text-sm font-medium gradient-text-rainbow">AI-Powered Placement Analysis</h2>
+
+        {/* Sidebar Nav Links */}
+        <nav className="flex-1 space-y-1.5 py-6 px-3">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 transition-all text-sm group relative",
+                  isActive
+                    ? item.primary
+                      ? "bg-[#00FF88] text-[#0A0A0F] font-bold shadow-[0_0_15px_rgba(0,255,136,0.2)]"
+                      : "bg-[#1A1A26] text-[#00FF88] border-l-2 border-[#00FF88] font-medium"
+                    : "text-[#8E8E9E] hover:bg-[#12121D] hover:text-[#00FF88]"
+                )}
+              >
+                <Icon
+                  size={18}
+                  className={cn(
+                    "transition-transform group-hover:scale-110",
+                    isActive && !item.primary && "text-[#00FF88]"
+                  )}
+                />
+                {!collapsed && <span className="tracking-wide">{item.label}</span>}
+                {isActive && collapsed && (
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-[#00FF88]" />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Sidebar Footer (Profile Completeness & Logout) */}
+        <div className="border-t border-[#1F1F2E] bg-[#0A0A0F] p-4 space-y-4">
+          {!collapsed && (
+            <div className="space-y-2 border border-[#1F1F2E] p-3 bg-[#0C0C14]">
+              <div className="flex items-center justify-between text-[11px] code-font text-[#8E8E9E]">
+                <span>PROFILE COMPLETENESS</span>
+                <span className={cn(profileComplete ? "text-[#00FF88]" : "text-amber-500")}>
+                  {profilePercentage}%
+                </span>
+              </div>
+              <Progress value={profilePercentage} className="h-1.5 bg-[#1F1F2E]" indicatorClassName="bg-[#00FF88] shadow-[0_0_8px_rgba(0,255,136,0.3)]" />
+              <div className="flex items-center gap-1.5 text-[10px] text-[#8E8E9E]">
+                {profileComplete ? (
+                  <>
+                    <CheckCircle2 size={10} className="text-[#00FF88]" />
+                    <span className="text-[#00FF88] font-medium">Ready for AI Analyse</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle size={10} className="text-amber-500" />
+                    <span>Complete profile for best match</span>
+                  </>
+                )}
               </div>
             </div>
-          </header>
-          
-          {/* Main Content */}
-          <main className="flex-1 p-6 animate-fade-in bg-transparent">
-            <Outlet />
-          </main>
+          )}
+
+          <Button
+            variant="ghost"
+            onClick={handleSignOut}
+            className={cn(
+              "w-full flex items-center hover:bg-[#2A1F1F] hover:text-red-400 text-[#8E8E9E] transition-all py-2.5 px-3 justify-start gap-3",
+              collapsed && "justify-center px-0"
+            )}
+          >
+            <LogOut size={18} />
+            {!collapsed && <span className="tracking-wide">Sign Out</span>}
+          </Button>
         </div>
-      </div>
-    </SidebarProvider>;
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col min-h-screen">
+        {/* Top Header Warning Banner if profile not complete */}
+        {!profileComplete && location.pathname !== "/profile" && (
+          <div className="flex items-center justify-between bg-amber-950/20 border-b border-amber-800/30 px-6 py-2.5 text-xs text-amber-300">
+            <div className="flex items-center gap-2">
+              <AlertCircle size={14} className="text-amber-400" />
+              <span>
+                <strong>Profile incomplete ({profilePercentage}%)</strong>. Please configure your skills and projects to enable personalized, high-precision Job Fit analyses.
+              </span>
+            </div>
+            <Link
+              to="/profile"
+              className="text-[#00FF88] font-bold hover:underline hover:text-[#00CC70] transition-colors"
+            >
+              Complete Now &rarr;
+            </Link>
+          </div>
+        )}
+
+        {/* Primary Page Content Wrapper */}
+        <div className="flex-1 p-6 md:p-10 max-w-7xl w-full mx-auto">
+          {children}
+        </div>
+      </main>
+    </div>
+  );
 }
