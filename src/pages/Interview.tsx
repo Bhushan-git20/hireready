@@ -21,13 +21,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../components/ui/accordion";
 import { toast } from "sonner";
 
+interface InterviewApplication {
+  id: string;
+  company: string;
+  role: string;
+  jd_text: string;
+}
+
+interface QuestionItem {
+  question: string;
+  why_asked: string;
+  framework: string;
+  example_answer: string;
+  follow_ups: string[];
+}
+
 export function Interview() {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [jdText, setJdText] = useState("");
-  const [savedApps, setSavedApps] = useState<any[]>([]);
+  const [savedApps, setSavedApps] = useState<InterviewApplication[]>([]);
   const [selectedAppId, setSelectedAppId] = useState<string>("manual");
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<QuestionItem[]>([]);
 
   useEffect(() => {
     // Check if redirect came with a prefilled JD
@@ -101,9 +116,10 @@ export function Interview() {
       } else {
         throw new Error(data?.error || "Invalid response format.");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Prep failed:", err);
-      toast.error(err.message || "Failed to generate interview prep.");
+      const errorMessage = err instanceof Error ? err.message : "Failed to generate interview prep.";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -23,9 +23,42 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "../components/ui/dialog";
 import { toast } from "sonner";
 
+interface ApplicationRecord {
+  id: string;
+  company: string;
+  role: string;
+  jd_text?: string;
+  notes?: string;
+  status: string;
+  fit_grade?: string;
+  applied_date: string;
+  created_at: string;
+  user_id: string;
+}
+
+interface SkillGapAnalysis {
+  skill: string;
+  priority: string;
+}
+
+interface MatchingSkillAnalysis {
+  skill: string;
+  strength: string;
+}
+
+interface ApplicationAnalysis {
+  id: string;
+  application_id: string;
+  fit_grade: string;
+  fit_score: number;
+  recommendation: string;
+  skill_gaps: SkillGapAnalysis[];
+  matching_skills: MatchingSkillAnalysis[];
+}
+
 export function Tracker() {
   const [loading, setLoading] = useState(true);
-  const [apps, setApps] = useState<any[]>([]);
+  const [apps, setApps] = useState<ApplicationRecord[]>([]);
 
   // Add App Modal states
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -38,7 +71,7 @@ export function Tracker() {
 
   // View Analysis Modal states
   const [isViewOpen, setIsViewOpen] = useState(false);
-  const [selectedAnalysis, setSelectedAnalysis] = useState<any>(null);
+  const [selectedAnalysis, setSelectedAnalysis] = useState<ApplicationAnalysis | null>(null);
 
   const navigate = useNavigate();
 
@@ -59,9 +92,10 @@ export function Tracker() {
 
       if (error) throw error;
       setApps(data || []);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast.error(err.message || "Failed to load tracker applications.");
+      const errorMessage = err instanceof Error ? err.message : "Failed to load tracker applications.";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -105,9 +139,10 @@ export function Tracker() {
       setStatus("applied");
 
       loadTrackerData();
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast.error(err.message || "Failed to add application.");
+      const errorMessage = err instanceof Error ? err.message : "Failed to add application.";
+      toast.error(errorMessage);
     } finally {
       setSaving(false);
     }
@@ -123,9 +158,10 @@ export function Tracker() {
       if (error) throw error;
       toast.success("Application status updated!");
       loadTrackerData();
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast.error(err.message || "Failed to update status.");
+      const errorMessage = err instanceof Error ? err.message : "Failed to update status.";
+      toast.error(errorMessage);
     }
   };
 
@@ -141,9 +177,10 @@ export function Tracker() {
       if (error) throw error;
       toast.success("Application deleted.");
       loadTrackerData();
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast.error(err.message || "Failed to delete application.");
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete application.";
+      toast.error(errorMessage);
     }
   };
 
@@ -168,9 +205,10 @@ export function Tracker() {
         setSelectedAnalysis(data);
         setIsViewOpen(true);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast.error(err.message || "Failed to load analysis details.");
+      const errorMessage = err instanceof Error ? err.message : "Failed to load analysis details.";
+      toast.error(errorMessage);
     }
   };
 
@@ -504,7 +542,7 @@ export function Tracker() {
               <div className="space-y-1">
                 <span className="text-[9px] code-font text-amber-500 tracking-widest block font-semibold uppercase">IDENTIFIED SKILL GAPS</span>
                 <div className="flex flex-wrap gap-1.5">
-                  {selectedAnalysis.skill_gaps?.map((gap: any, idx: number) => (
+                  {selectedAnalysis.skill_gaps?.map((gap: SkillGapAnalysis, idx: number) => (
                     <span key={idx} className="inline-flex items-center gap-1 bg-[#0A0A0F] border border-[#1F1F2E] text-xs px-2 py-0.5 text-white">
                       <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
                       {gap.skill}
@@ -518,7 +556,7 @@ export function Tracker() {
               <div className="space-y-1">
                 <span className="text-[9px] code-font text-[#00FF88] tracking-widest block font-semibold uppercase">CONFIRMED MATCHES</span>
                 <div className="flex flex-wrap gap-1.5">
-                  {selectedAnalysis.matching_skills?.map((item: any, idx: number) => (
+                  {selectedAnalysis.matching_skills?.map((item: MatchingSkillAnalysis, idx: number) => (
                     <span key={idx} className="inline-flex items-center gap-1 bg-[#0A0A0F] border border-[#1F1F2E] text-xs px-2 py-0.5 text-white">
                       <span className="h-1.5 w-1.5 rounded-full bg-[#00FF88]" />
                       {item.skill}

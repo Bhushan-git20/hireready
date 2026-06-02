@@ -143,9 +143,10 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
 
       toast.success("System configurations updated successfully!");
       onProfileUpdate();
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast.error(err.message || "Failed to update profile configurations.");
+      const errorMsg = err instanceof Error ? err.message : "Failed to update profile configurations.";
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }

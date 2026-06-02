@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { 
   TrendingDown, 
@@ -13,17 +14,48 @@ import {
   ArrowRight,
   TrendingUp
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "../components/ui/card";
 import { Label } from "../components/ui/label";
 import { Button } from "../components/ui/button";
 import { Progress } from "../components/ui/progress";
 import { toast } from "sonner";
 
+interface RejectionPattern {
+  title: string;
+  description: string;
+}
+
+interface SkillGapPattern {
+  skill: string;
+  frequency: string;
+  recommendation: string;
+}
+
+interface ActionItem {
+  priority: string;
+  action: string;
+  rationale: string;
+}
+
+interface RecommendedRole {
+  role: string;
+  reason: string;
+}
+
+interface RejectionAnalytics {
+  confidence_score: number;
+  patterns: RejectionPattern[];
+  skill_gap_patterns: SkillGapPattern[];
+  action_items: ActionItem[];
+  recommended_roles: RecommendedRole[];
+}
+
 export function Rejections() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
   const [appsCount, setAppsCount] = useState(0);
-  const [analytics, setAnalytics] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<RejectionAnalytics | null>(null);
 
   useEffect(() => {
     checkApplicationsCount();
@@ -71,9 +103,10 @@ export function Rejections() {
       } else {
         throw new Error(data?.error || "Invalid response format.");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Analysis failed:", err);
-      toast.error(err.message || "Failed to execute rejection analysis.");
+      const errorMessage = err instanceof Error ? err.message : "Failed to execute rejection analysis.";
+      toast.error(errorMessage);
     } finally {
       setAnalyzing(false);
     }
@@ -254,7 +287,7 @@ export function Rejections() {
                     <div className="space-y-3">
                       <span className="text-[10px] code-font text-[#00FF88] tracking-widest block font-semibold">DETECTED REJECTION PATTERNS</span>
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {analytics.patterns?.map((pat: any, idx: number) => (
+                        {analytics.patterns?.map((pat: RejectionPattern, idx: number) => (
                           <div key={idx} className="border border-[#1F1F2E] p-4 bg-[#09090E] space-y-2">
                             <span className="text-xs font-bold text-white block tracking-wider" style={{ fontFamily: 'Clash Display' }}>
                               {pat.title}
@@ -280,7 +313,7 @@ export function Rejections() {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-[#1F1F2E]/40">
-                            {analytics.skill_gap_patterns?.map((gap: any, idx: number) => (
+                            {analytics.skill_gap_patterns?.map((gap: SkillGapPattern, idx: number) => (
                               <tr key={idx} className="hover:bg-[#0E0E16]/50">
                                 <td className="p-2 font-bold text-white">{gap.skill}</td>
                                 <td className="p-2 text-center">
@@ -300,7 +333,7 @@ export function Rejections() {
                     <div className="space-y-3">
                       <span className="text-[10px] code-font text-[#00FF88] tracking-widest block font-semibold">CORRECTIVE SYSTEM ACTION ITEMS</span>
                       <div className="space-y-3">
-                        {analytics.action_items?.map((item: any, idx: number) => (
+                        {analytics.action_items?.map((item: ActionItem, idx: number) => (
                           <div key={idx} className="flex gap-4 border border-[#1F1F2E] p-4 bg-[#09090E]">
                             <div className="flex flex-col items-center">
                               <span className="text-[9px] code-font text-[#8E8E9E] mb-1">PRIORITY</span>
@@ -321,7 +354,7 @@ export function Rejections() {
                     <div className="space-y-3">
                       <span className="text-[10px] code-font text-[#00FF88] tracking-widest block font-semibold">RECOMMENDED ROLE/STRATEGY SHIFTS</span>
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {analytics.recommended_roles?.map((role: any, idx: number) => (
+                        {analytics.recommended_roles?.map((role: RecommendedRole, idx: number) => (
                           <div key={idx} className="border border-[#1F1F2E] p-4 bg-[#09090E] flex gap-3">
                             <div className="text-[#00FF88] mt-0.5"><Target size={16} className="glow-text-green" /></div>
                             <div className="space-y-1">

@@ -145,9 +145,10 @@ Be honest and specific. Do not be overly optimistic.`;
     return new Response(JSON.stringify({ success: true, analysis, analysis_id: savedAnalysis?.id }), {
       headers: { ...cors, "Content-Type": "application/json" },
     });
-  } catch (err: any) {
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
     console.error("analyse-jd error:", err);
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: errorMsg }), {
       status: 500,
       headers: { ...cors, "Content-Type": "application/json" },
     });

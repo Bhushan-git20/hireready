@@ -145,9 +145,10 @@ Be completely honest, constructive, and direct. Do not sugarcoat.`;
     return new Response(JSON.stringify({ success: true, ...parsedResult }), {
       headers: { ...cors, "Content-Type": "application/json" },
     });
-  } catch (err: any) {
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
     console.error("rejection-analyse error:", err);
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: errorMsg }), {
       status: 500,
       headers: { ...cors, "Content-Type": "application/json" },
     });

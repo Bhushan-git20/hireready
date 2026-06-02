@@ -22,6 +22,28 @@ import { Button } from "../components/ui/button";
 import { Checkbox } from "../components/ui/checkbox";
 import { toast } from "sonner";
 
+interface MatchingSkill {
+  skill: string;
+  strength: "strong" | "moderate" | "weak";
+}
+
+interface SkillGap {
+  skill: string;
+  priority: "critical" | "important" | "nice-to-have";
+  weeks_to_learn: number;
+}
+
+interface AnalysisResult {
+  fit_grade: "A" | "B" | "C" | "D" | "F";
+  fit_score: number;
+  should_apply: boolean;
+  recommendation: string;
+  matching_skills: MatchingSkill[];
+  skill_gaps: SkillGap[];
+  role_summary?: string;
+  red_flags?: string[];
+}
+
 export function Analyse() {
   const [loading, setLoading] = useState(false);
   const [jdText, setJdText] = useState("");
@@ -30,7 +52,7 @@ export function Analyse() {
   const [saveApplication, setSaveApplication] = useState(true);
 
   // Analysis result states
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
   const navigate = useNavigate();
 
   const handleAnalyse = async (e: React.FormEvent) => {
@@ -69,9 +91,10 @@ export function Analyse() {
       } else {
         throw new Error(data?.error || "Invalid response format.");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Analysis failed:", err);
-      toast.error(err.message || "Failed to execute JD analysis.");
+      const errorMsg = err instanceof Error ? err.message : "Failed to execute JD analysis.";
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -298,7 +321,7 @@ export function Analyse() {
                         {result.matching_skills?.length === 0 ? (
                           <span className="text-xs text-[#4E4E5E] italic">No matching keywords detected</span>
                         ) : (
-                          result.matching_skills?.map((item: any) => (
+                          result.matching_skills?.map((item: MatchingSkill) => (
                             <span key={item.skill} className="inline-flex items-center gap-1 bg-[#0A0A0F] border border-[#1F1F2E] text-xs px-2 py-0.5 text-[#E1E1E6]">
                               <span className="h-1.5 w-1.5 rounded-full bg-[#00FF88]" />
                               {item.skill}
@@ -347,7 +370,7 @@ export function Analyse() {
                               <td colSpan={3} className="p-3 text-center text-[#4E4E5E] italic">Perfect skill alignment! Zero gaps detected.</td>
                             </tr>
                           ) : (
-                            result.skill_gaps?.map((gap: any) => (
+                            result.skill_gaps?.map((gap: SkillGap) => (
                               <tr key={gap.skill} className="hover:bg-[#0E0E16]/50">
                                 <td className="p-2 font-medium text-white">{gap.skill}</td>
                                 <td className="p-2 text-center">

@@ -109,9 +109,10 @@ Ensure the answers are deeply personalized using the user's specific skills and 
     return new Response(JSON.stringify({ success: true, questions: parsedResult.questions }), {
       headers: { ...cors, "Content-Type": "application/json" },
     });
-  } catch (err: any) {
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
     console.error("interview-prep error:", err);
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: errorMsg }), {
       status: 500,
       headers: { ...cors, "Content-Type": "application/json" },
     });

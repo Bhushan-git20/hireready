@@ -56,9 +56,10 @@ export function Auth() {
         toast.success("Logged in successfully!");
         navigate("/analyse");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast.error(err.message || "An authentication error occurred.");
+      const errorMsg = err instanceof Error ? err.message : "An authentication error occurred.";
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }

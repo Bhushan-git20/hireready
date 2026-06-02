@@ -9,9 +9,10 @@ import { Interview } from "./pages/Interview";
 import { Tracker } from "./pages/Tracker";
 import { Rejections } from "./pages/Rejections";
 import { Loader2 } from "lucide-react";
+import { Session } from "@supabase/supabase-js";
 
 export default function App() {
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileComplete, setProfileComplete] = useState(false);
   const [profilePercentage, setProfilePercentage] = useState(0);
