@@ -4,6 +4,8 @@
 
 **🌐 [Live Demo](https://hireready.vercel.app) | 💼 [Portfolio](https://bhushanam-portfolio.vercel.app)**
 
+![HireReady Dashboard](screenshot.png)
+
 HireReady is a complete, applied AI engineering system that helps students make smarter career decisions. It analyzes job descriptions mathematically against their custom skills context, outlines technical and behavioral gaps, prepares STAR interview answers, tracks progress, and discovers systemic reasons behind application ghostings/rejections.
 
 ---
