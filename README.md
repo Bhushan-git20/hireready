@@ -2,9 +2,25 @@
 
 > **Know before you apply.** Free, open-source job application intelligence and interview preparation tool designed for engineering and MCA freshers in India.
 
+**🌐 [Live Demo](https://hireready.vercel.app) | 💼 [Portfolio](https://bhushanam-portfolio.vercel.app)**
+
 HireReady is a complete, applied AI engineering system that helps students make smarter career decisions. It analyzes job descriptions mathematically against their custom skills context, outlines technical and behavioral gaps, prepares STAR interview answers, tracks progress, and discovers systemic reasons behind application ghostings/rejections.
 
 ---
+
+## 🏗️ Architecture Diagram
+
+```mermaid
+graph TD
+    A[Client UI - React/Vite] --> B[Supabase Auth]
+    A --> C[Supabase PostgreSQL DB]
+    A --> D[Supabase Edge Functions]
+    D --> E[Gemini 2.5 Flash AI API]
+    C --> D
+```
+
+---
+
 
 ## ⚡ Key Capabilities
 
