@@ -81,5 +81,5 @@ npm run dev
 ---
 
 ## 👤 Built By
-**Bhushan Damisetti** — MCA Graduate 2026, Vignan's Institute of Information Technology.
+**Bhushan Damisetti** — MCA Candidate (Graduating July 2026), Vignan's Institute of Information Technology.
 Stack: Python, FastAPI, React, TypeScript, Node.js, PostgreSQL, Docker, AWS.

@@ -32,3 +32,6 @@ dist-ssr
 
 
 .vite/deps
+
+# IDE & Agent Artifacts
+design.md
