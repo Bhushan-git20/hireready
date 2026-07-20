@@ -82,4 +82,4 @@ npm run dev
 
 ## 👤 Built By
 **Bhushan Damisetti** — MCA Candidate (Graduating July 2026), Vignan's Institute of Information Technology.
-Stack: Python, FastAPI, React, TypeScript, Node.js, PostgreSQL, Docker, AWS.
+Stack: React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui, Supabase (Auth, PostgreSQL, Edge Functions), Google Gemini 2.5 Flash.
